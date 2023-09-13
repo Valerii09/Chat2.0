@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class UserListActivity : AppCompatActivity() {
 
     private lateinit var userList: ListView
+    private lateinit var usernames: MutableList<String> // Создаем список для имен пользователей
     private lateinit var users: MutableList<User>
     private lateinit var firestore: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
@@ -22,10 +23,12 @@ class UserListActivity : AppCompatActivity() {
 
         userList = findViewById(R.id.userList)
         users = mutableListOf()
+        usernames = mutableListOf() // Инициализируем список для имен
+
         firestore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
 
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, users)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, usernames) // Используем список имен для адаптера
         userList.adapter = adapter
 
         firestore.collection("users")
@@ -37,6 +40,7 @@ class UserListActivity : AppCompatActivity() {
                     val email = document.getString("email") ?: ""
                     val user = User(userId, username, email)
                     users.add(user)
+                    usernames.add(username) // Добавляем имя в список имен
                 }
                 adapter.notifyDataSetChanged()
             }
@@ -53,7 +57,6 @@ class UserListActivity : AppCompatActivity() {
     private fun openChatDialog(selectedUser: User) {
         val intent = Intent(this, ChatActivity::class.java)
 
-        // Передайте информацию о выбранном пользователе в ChatActivity через Intent
         intent.putExtra("userId", selectedUser.userId)
         intent.putExtra("username", selectedUser.username)
 
