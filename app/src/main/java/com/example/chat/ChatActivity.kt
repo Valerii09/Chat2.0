@@ -8,6 +8,8 @@ import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.chat.MessageAdapter
+
 
 class ChatActivity : AppCompatActivity() {
     private lateinit var firestore: FirebaseFirestore
@@ -68,6 +70,7 @@ class ChatActivity : AppCompatActivity() {
 
     private fun sendMessage(dialogId: String, messageText: String) {
         val senderId = auth.currentUser?.uid
+
         if (senderId != null) {
             val messageId = System.currentTimeMillis().toString() // Уникальный идентификатор сообщения
             val message = Message(senderId, dialogId, messageText, messageId)
@@ -76,13 +79,14 @@ class ChatActivity : AppCompatActivity() {
             firestore.collection("dialogs").document(dialogId).collection("messages").document(messageId).set(message)
                 .addOnSuccessListener {
                     // Успешно отправлено
+                    val messageAdapter = MessageAdapter(senderId)
+                    messageAdapter.addMessage(message, senderId)
                 }
                 .addOnFailureListener { e ->
                     // Ошибка отправки
                 }
         }
     }
-
 
     private fun getMessageText(): String {
         val messageEditText = findViewById<EditText>(R.id.messageEditText)
