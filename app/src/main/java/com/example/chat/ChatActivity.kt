@@ -25,6 +25,7 @@ class ChatActivity : AppCompatActivity() {
 
         val userId = intent.getStringExtra("userId")
         val username = intent.getStringExtra("username")
+        val messageId = System.currentTimeMillis().toString()
 
         val listView = findViewById<ListView>(R.id.listView)
         messages = mutableListOf()
@@ -51,34 +52,37 @@ class ChatActivity : AppCompatActivity() {
         firestore.collection("dialogs").document(dialogId).collection("messages")
             .orderBy("timestamp")
             .addSnapshotListener { snapshot, _ ->
-                messages.clear()
+                val newMessages = mutableListOf<String>() // Создайте новый список сообщений
                 snapshot?.documents?.forEach { document ->
                     val messageText = document.getString("messageText")
                     if (messageText != null) {
-                        messages.add(messageText)
+                        newMessages.add(messageText) // только новые сообщения
                     }
                 }
+                messages.clear() // Очистить старый список
+                messages.addAll(newMessages) //  новые сообщения в список
                 adapter.notifyDataSetChanged()
             }
     }
 
+
     private fun sendMessage(dialogId: String, messageText: String) {
         val senderId = auth.currentUser?.uid
         if (senderId != null) {
-            val message = Message(senderId, dialogId, messageText, System.currentTimeMillis())
+            val messageId = System.currentTimeMillis().toString() // Уникальный идентификатор сообщения
+            val message = Message(senderId, dialogId, messageText, messageId)
 
             // Сохраните сообщение в Firestore в подколлекции messages текущего диалога
-            firestore.collection("dialogs").document(dialogId).collection("messages").add(message)
+            firestore.collection("dialogs").document(dialogId).collection("messages").document(messageId).set(message)
                 .addOnSuccessListener {
                     // Успешно отправлено
-                    messages.add(messageText)
-                    adapter.notifyDataSetChanged()
                 }
                 .addOnFailureListener { e ->
                     // Ошибка отправки
                 }
         }
     }
+
 
     private fun getMessageText(): String {
         val messageEditText = findViewById<EditText>(R.id.messageEditText)
