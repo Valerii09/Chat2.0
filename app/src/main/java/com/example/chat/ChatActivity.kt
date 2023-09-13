@@ -12,8 +12,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 class ChatActivity : AppCompatActivity() {
     private lateinit var firestore: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
-    private lateinit var adapter: ArrayAdapter<String> // Адаптер для сообщений
-    private lateinit var messages: MutableList<String> // Список сообщений
+    private lateinit var adapter: ArrayAdapter<String>
+    private lateinit var messages: MutableList<String>
+    private lateinit var dialogId: String // Идентификатор текущего диалога
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,30 +31,44 @@ class ChatActivity : AppCompatActivity() {
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, messages)
         listView.adapter = adapter
 
+        // Определите идентификатор диалога на основе идентификаторов пользователей
         if (userId != null) {
-            loadMessages(userId)
+            dialogId = getDialogId(auth.currentUser?.uid, userId)
+            loadMessages(dialogId)
         }
 
         val sendButton = findViewById<Button>(R.id.sendButton)
         sendButton.setOnClickListener {
             val messageText = getMessageText()
             if (userId != null) {
-                sendMessage(userId, messageText)
+                sendMessage(dialogId, messageText)
             }
         }
     }
 
-    private fun loadMessages(userId: String) {
-        // Ваш код для загрузки сообщений из Firestore, как вы делали ранее
+    private fun loadMessages(dialogId: String) {
+        // Загрузите сообщения для данного диалога из Firestore
+        firestore.collection("dialogs").document(dialogId).collection("messages")
+            .orderBy("timestamp")
+            .addSnapshotListener { snapshot, _ ->
+                messages.clear()
+                snapshot?.documents?.forEach { document ->
+                    val messageText = document.getString("messageText")
+                    if (messageText != null) {
+                        messages.add(messageText)
+                    }
+                }
+                adapter.notifyDataSetChanged()
+            }
     }
 
-    private fun sendMessage(receiverId: String, messageText: String) {
+    private fun sendMessage(dialogId: String, messageText: String) {
         val senderId = auth.currentUser?.uid
         if (senderId != null) {
-            val message = Message(senderId, receiverId, messageText, System.currentTimeMillis())
+            val message = Message(senderId, dialogId, messageText, System.currentTimeMillis())
 
-            // Сохраните сообщение в Firestore
-            firestore.collection("messages").add(message)
+            // Сохраните сообщение в Firestore в подколлекции messages текущего диалога
+            firestore.collection("dialogs").document(dialogId).collection("messages").add(message)
                 .addOnSuccessListener {
                     // Успешно отправлено
                     messages.add(messageText)
@@ -69,4 +84,12 @@ class ChatActivity : AppCompatActivity() {
         val messageEditText = findViewById<EditText>(R.id.messageEditText)
         return messageEditText.text.toString()
     }
+
+    private fun getDialogId(userId1: String?, userId2: String?): String {
+        // Сортируйте идентификаторы пользователей и объединяйте их, чтобы получить уникальный идентификатор диалога
+        val sortedUserIds = listOfNotNull(userId1, userId2).sorted()
+        return sortedUserIds.joinToString("_")
+    }
+
+
 }
