@@ -34,19 +34,25 @@ class UserListActivity : AppCompatActivity() {
         firestore.collection("users")
             .get()
             .addOnSuccessListener { result ->
+                val currentUser = FirebaseAuth.getInstance().currentUser
                 for (document in result) {
                     val userId = document.id
                     val username = document.getString("username") ?: ""
                     val email = document.getString("email") ?: ""
-                    val user = User(userId, username, email)
-                    users.add(user)
-                    usernames.add(username) // Добавляем имя в список имен
+
+                    // Проверяем, чтобы не добавлять текущего пользователя
+                    if (currentUser != null && userId != currentUser.uid) {
+                        val user = User(userId, username, email)
+                        users.add(user)
+                        usernames.add(username) // Добавляем имя в список имен
+                    }
                 }
                 adapter.notifyDataSetChanged()
             }
             .addOnFailureListener { exception ->
                 Log.e("UserListActivity", "Error getting users", exception)
             }
+
 
         userList.setOnItemClickListener { _, _, position, _ ->
             val selectedUser = users[position]
@@ -55,11 +61,17 @@ class UserListActivity : AppCompatActivity() {
     }
 
     private fun openChatDialog(selectedUser: User) {
-        val intent = Intent(this, ChatActivity::class.java)
+        val currentUser = FirebaseAuth.getInstance().currentUser
 
-        intent.putExtra("userId", selectedUser.userId)
-        intent.putExtra("username", selectedUser.username)
+        if (currentUser != null && currentUser.uid != selectedUser.userId) {
+            val intent = Intent(this, ChatActivity::class.java)
 
-        startActivity(intent)
+            intent.putExtra("userId", selectedUser.userId)
+            intent.putExtra("username", selectedUser.username)
+
+            startActivity(intent)
+        } else {
+            // Не открывать диалог с самим собой
+        }
     }
 }
