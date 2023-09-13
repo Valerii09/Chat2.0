@@ -75,32 +75,20 @@ class RegistrationActivity : AppCompatActivity() {
             val userRef = firestore.collection("users").document(userId)
 
             val userData = User(userId, firstName, email)
-            // Создайте объект данных для Realtime Database
-            val realtimeUserData = mapOf(
-                "userId" to userId,
-                "username" to firstName, // Ваш выбор, как использовать имя пользователя
-                "email" to email
-            )
-
-// Сохраните данные в Realtime Database
-
-
             userRef.set(userData)
                 .addOnSuccessListener {
                     // Успешное сохранение данных в Firestore
 
-                    // Теперь добавьте код для сохранения данных в Realtime Database
                     val database = FirebaseDatabase.getInstance()
                     val databaseReference = database.getReference("users")
 
-                    // Создайте объект данных для Realtime Database
                     val realtimeUserData = mapOf(
                         "userId" to userId,
                         "username" to firstName, // Ваш выбор, как использовать имя пользователя
                         "email" to email
                     )
 
-                    // Сохраните данные в Realtime Database
+                    // Сохранение данных в Realtime Database
                     databaseReference.child(userId).setValue(realtimeUserData)
                         .addOnSuccessListener {
                             Toast.makeText(this, "Регистрация успешна", Toast.LENGTH_SHORT).show()
@@ -112,7 +100,6 @@ class RegistrationActivity : AppCompatActivity() {
                                 Toast.LENGTH_SHORT
                             ).show()
 
-                            // Добавьте этот лог для отладки
                             Log.e("RegistrationActivity", "Failed to save user data in Realtime Database", e)
                         }
                 }
@@ -122,8 +109,6 @@ class RegistrationActivity : AppCompatActivity() {
                         "Ошибка при сохранении данных пользователя в Firestore: ${e.message}",
                         Toast.LENGTH_SHORT
                     ).show()
-
-                    // Добавьте этот лог для отладки
                     Log.e("RegistrationActivity", "Failed to save user data in Firestore", e)
                 }
         }

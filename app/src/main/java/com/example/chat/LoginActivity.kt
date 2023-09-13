@@ -19,7 +19,6 @@ class LoginActivity : AppCompatActivity() {
 
         // Обработчик нажатия на кнопку "Войти"
         buttonSignIn.setOnClickListener(View.OnClickListener {
-            // Здесь реализуйте процесс авторизации, проверьте учетные данные и т. д.
 
             // Если авторизация успешна, перейдите к главной активности
             openMainActivity()
@@ -27,9 +26,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun openMainActivity() {
-        // Здесь напишите код для перехода к главной активности
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
-        finish() // Закройте текущую активность после успешной авторизации
+        finish()
     }
 }

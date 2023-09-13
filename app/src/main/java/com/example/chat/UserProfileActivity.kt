@@ -10,7 +10,6 @@ class UserProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_profile)
 
-        // Получите информацию о пользователе из предыдущей активности или из вашего хранилища данных
         val username = intent.getStringExtra("username")
         val email = intent.getStringExtra("email")
 
@@ -21,6 +20,5 @@ class UserProfileActivity : AppCompatActivity() {
         textViewUsername.text = username
         textViewEmail.text = email
 
-        // Вы можете добавить код для отображения другой личной информации о пользователе
     }
 }

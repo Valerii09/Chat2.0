@@ -25,7 +25,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openUserListActivity() {
-        // Здесь напишите код для открытия активности списка пользователей (UserListActivity)
         val intent = Intent(this, UserListActivity::class.java)
         startActivity(intent)
     }

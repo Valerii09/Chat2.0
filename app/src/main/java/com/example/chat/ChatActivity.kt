@@ -13,8 +13,7 @@ class ChatActivity : AppCompatActivity() {
         val userId = intent.getStringExtra("userId")
         val username = intent.getStringExtra("username")
 
-        // Здесь можно добавить код для отображения сообщений и отправки новых сообщений
-        // Используйте информацию о пользователе, переданную из активности списка пользователей
+
     }
     private fun openChatActivity(user: User) {
         val intent = Intent(this, ChatActivity::class.java)

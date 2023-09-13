@@ -59,15 +59,15 @@ class AuthActivity : AppCompatActivity() {
 
 
     private fun openRegisterActivity() {
-        // Здесь напишите код для перехода к активности регистрации
+
         val intent = Intent(this, RegistrationActivity::class.java)
         startActivity(intent)
     }
 
     private fun openMainActivity() {
-        // Здесь напишите код для перехода к главной активности
+
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
-        finish() // Закройте текущую активность после успешной авторизации
+        finish()
     }
 }

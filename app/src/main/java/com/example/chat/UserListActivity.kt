@@ -28,7 +28,6 @@ class UserListActivity : AppCompatActivity() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, users)
         userList.adapter = adapter
 
-        // Получите список пользователей из Firestore
         firestore.collection("users")
             .get()
             .addOnSuccessListener { result ->
@@ -42,12 +41,9 @@ class UserListActivity : AppCompatActivity() {
                 adapter.notifyDataSetChanged()
             }
             .addOnFailureListener { exception ->
-                // Обработка ошибки при получении данных из Firestore
-                // Добавьте этот лог для отладки
                 Log.e("UserListActivity", "Error getting users", exception)
             }
 
-        // Добавьте обработчик нажатия на элемент списка для открытия диалога с пользователем
         userList.setOnItemClickListener { _, _, position, _ ->
             val selectedUser = users[position]
             openChatDialog(selectedUser)
